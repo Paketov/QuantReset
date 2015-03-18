@@ -1,5 +1,4 @@
 #VC Makefile
-#For client 
 
 CC = cl
 LNK = link
@@ -9,9 +8,6 @@ CRC = rc
 !ifndef DDK_PATH
 DDK_PATH = C:\WinDDK\7600.16385.1\
 !endif
-#For driver
-
-#include "Build.mk"
 
 all:
 	cd Driver
@@ -20,7 +16,5 @@ all:
 	cd ..\Client
 	NMAKE CC=$(CC) LNK=$(LNK) CRC=$(CRC)
 	copy /B .\QuantReset.exe ..\QuantReset.exe
-
-#include "Build.mk"	
 
 	
