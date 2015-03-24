@@ -20,7 +20,7 @@ void ComputeSlideQuntumsInOb()
 {
 	RTL_OSVERSIONINFOW osInfo;
 
-	////Попытка задать свой период системному таймеру
+	////ГЏГ®ГЇГ»ГІГЄГ  Г§Г Г¤Г ГІГј Г±ГўГ®Г© ГЇГҐГ°ГЁГ®Г¤ Г±ГЁГ±ГІГҐГ¬Г­Г®Г¬Гі ГІГ Г©Г¬ГҐГ°Гі
 	//LPRTC_TIME_INCREMENT tst;
 	//RTC_TIME_INCREMENT NewTimer = {0x2A, 156250, 0, 0, 0x100};
 
@@ -60,7 +60,7 @@ void ComputeSlideQuntumsInOb()
 	}
 }
 
-//Обработчик входных сообщений 
+//ГЋГЎГ°Г ГЎГ®ГІГ·ГЁГЄ ГўГµГ®Г¤Г­Г»Гµ Г±Г®Г®ГЎГ№ГҐГ­ГЁГ© 
 NTSTATUS InUserDataHandler(IN PVOID InData,IN ULONG SizeInBuffer,OUT PULONG_PTR Written)
 {
 
@@ -85,14 +85,14 @@ NTSTATUS InUserDataHandler(IN PVOID InData,IN ULONG SizeInBuffer,OUT PULONG_PTR 
 	case GET_START_VALUE_TABLE:
 	case IS_TIME_INCREMENT_LOCKED:
 
-		//Запрос на получение оригинальной таблицы квантов
+		//Г‡Г ГЇГ°Г®Г± Г­Г  ГЇГ®Г«ГіГ·ГҐГ­ГЁГҐ Г®Г°ГЁГЈГЁГ­Г Г«ГјГ­Г®Г© ГІГ ГЎГ«ГЁГ¶Г» ГЄГўГ Г­ГІГ®Гў
 		LastQueryPacket.Type = pPaket->Type;
 		*Written = GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,Type);
 		break;
 
 	case GET_THREAD_QUANT:
 	case GET_PROCESS_QUANT:
-		//Получение кванта потока
+		//ГЏГ®Г«ГіГ·ГҐГ­ГЁГҐ ГЄГўГ Г­ГІГ  ГЇГ®ГІГ®ГЄГ 
 		if(SizeInBuffer < GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,Id))
 			return STATUS_INVALID_USER_BUFFER;
 
@@ -101,7 +101,7 @@ NTSTATUS InUserDataHandler(IN PVOID InData,IN ULONG SizeInBuffer,OUT PULONG_PTR 
 		*Written =  GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,Id);
 		break;
 	case SET_TABLE_QUANT:
-		//Установка таблицы квантов
+		//Г“Г±ГІГ Г­Г®ГўГЄГ  ГІГ ГЎГ«ГЁГ¶Г» ГЄГўГ Г­ГІГ®Гў
 		if(SizeInBuffer < GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,QuantTable))
 			return STATUS_INVALID_USER_BUFFER;
 
@@ -125,7 +125,7 @@ NTSTATUS InUserDataHandler(IN PVOID InData,IN ULONG SizeInBuffer,OUT PULONG_PTR 
 		*Written = GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,QuantTable);
 		break;
 	case SET_PROCESS_QUANT:
-		//Установка кванта процессу
+		//Г“Г±ГІГ Г­Г®ГўГЄГ  ГЄГўГ Г­ГІГ  ГЇГ°Г®Г¶ГҐГ±Г±Гі
 		if(SizeInBuffer < max(GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,Quant),GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,Id)))
 			return STATUS_INVALID_USER_BUFFER;
 		ns = SetProcessQuantum(pPaket->Id,pPaket->Quant);
@@ -135,7 +135,7 @@ NTSTATUS InUserDataHandler(IN PVOID InData,IN ULONG SizeInBuffer,OUT PULONG_PTR 
 		}
 		break;
 	case SET_THREAD_QUANT:
-		//Установка кванта потоку
+		//Г“Г±ГІГ Г­Г®ГўГЄГ  ГЄГўГ Г­ГІГ  ГЇГ®ГІГ®ГЄГі
 		if(SizeInBuffer < max(GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,Quant),GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,Id)))
 			return STATUS_INVALID_USER_BUFFER;
 
@@ -147,7 +147,7 @@ NTSTATUS InUserDataHandler(IN PVOID InData,IN ULONG SizeInBuffer,OUT PULONG_PTR 
 		}
 		break;
 	case SET_PROCESS_PRIORITY_MODE:
-		//Установка кванта процессу
+		//Г“Г±ГІГ Г­Г®ГўГЄГ  ГЄГўГ Г­ГІГ  ГЇГ°Г®Г¶ГҐГ±Г±Гі
 		if(SizeInBuffer < max(GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,PriorityMode),GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,Id)))
 			return STATUS_INVALID_USER_BUFFER;
 		ns = SetProcessPriorityMode(pPaket->Id,pPaket->PriorityMode);
@@ -223,7 +223,7 @@ NTSTATUS InUserDataHandler(IN PVOID InData,IN ULONG SizeInBuffer,OUT PULONG_PTR 
 }
 
 
-//Возврат значений из драйвера
+//Г‚Г®Г§ГўГ°Г ГІ Г§Г­Г Г·ГҐГ­ГЁГ© ГЁГ§ Г¤Г°Г Г©ГўГҐГ°Г 
 NTSTATUS OutUserDataHandler(PVOID OutData, ULONG SizeOutBuffer, PULONG_PTR Written)
 {
 	LPQUANTUM_PACKET pPaket;
@@ -238,7 +238,7 @@ NTSTATUS OutUserDataHandler(PVOID OutData, ULONG SizeOutBuffer, PULONG_PTR Writt
 		return STATUS_INVALID_CONNECTION;
 		break;
 	case GET_ADDRESS_QUANT_TABLE:
-		//Запрос на получение адреса таблицы в ядре
+		//Г‡Г ГЇГ°Г®Г± Г­Г  ГЇГ®Г«ГіГ·ГҐГ­ГЁГҐ Г Г¤Г°ГҐГ±Г  ГІГ ГЎГ«ГЁГ¶Г» Гў ГїГ¤Г°ГҐ
 		if(SizeOutBuffer < GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,AddressTable))
 		{
 			ns = STATUS_INVALID_USER_BUFFER;
@@ -259,7 +259,7 @@ NTSTATUS OutUserDataHandler(PVOID OutData, ULONG SizeOutBuffer, PULONG_PTR Writt
 		*Written = GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,AddressTable);
 		break;
 	case GET_CURRENT_TABLE:
-		//Запрос на получение адреса таблицы в ядре
+		//Г‡Г ГЇГ°Г®Г± Г­Г  ГЇГ®Г«ГіГ·ГҐГ­ГЁГҐ Г Г¤Г°ГҐГ±Г  ГІГ ГЎГ«ГЁГ¶Г» Гў ГїГ¤Г°ГҐ
 		if(SizeOutBuffer < GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,QuantTable))
 		{
 			ns = STATUS_INVALID_USER_BUFFER;
@@ -280,7 +280,7 @@ NTSTATUS OutUserDataHandler(PVOID OutData, ULONG SizeOutBuffer, PULONG_PTR Writt
 		*Written = GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,QuantTable);
 		break;
 	case GET_START_VALUE_TABLE:
-		//Запрос на получение адреса таблицы в ядре
+		//Г‡Г ГЇГ°Г®Г± Г­Г  ГЇГ®Г«ГіГ·ГҐГ­ГЁГҐ Г Г¤Г°ГҐГ±Г  ГІГ ГЎГ«ГЁГ¶Г» Гў ГїГ¤Г°ГҐ
 		if(SizeOutBuffer < GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,QuantTable))
 		{
 			ns = STATUS_INVALID_USER_BUFFER;
@@ -313,7 +313,7 @@ lblSuccessfully:
 		*Written = GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,QuantTable);
 		break;
 	case GET_THREAD_QUANT:
-		//Получение кванта потока
+		//ГЏГ®Г«ГіГ·ГҐГ­ГЁГҐ ГЄГўГ Г­ГІГ  ГЇГ®ГІГ®ГЄГ 
 		if(SizeOutBuffer < max(GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,Quant),GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,Id)))
 		{
 			ns = STATUS_INVALID_USER_BUFFER;
@@ -328,7 +328,7 @@ lblSuccessfully:
 		}
 		break;
 	case GET_PROCESS_QUANT:
-		//Получение кванта процесса
+		//ГЏГ®Г«ГіГ·ГҐГ­ГЁГҐ ГЄГўГ Г­ГІГ  ГЇГ°Г®Г¶ГҐГ±Г±Г 
 
 		if(SizeOutBuffer < max(GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,Quant),GET_SIZE_STRUCT_FIELD(QUANTUM_PACKET,Id)))
 		{
@@ -451,57 +451,15 @@ NTSTATUS SetTimerIncrement(ULONG Max, ULONG Min, ULONG NewCur)
 		if(!NT_SUCCESS(ns))
 			DbgPrint("QUANTUM: Not set new resolution. Hal setted: %d", NewCur);
 #endif
-		// Установка собственного времени таймера
-		//от 26 до 29
+		// Г“Г±ГІГ Г­Г®ГўГЄГ  Г±Г®ГЎГ±ГІГўГҐГ­Г­Г®ГЈГ® ГўГ°ГҐГ¬ГҐГ­ГЁ ГІГ Г©Г¬ГҐГ°Г 
+		//Г®ГІ 26 Г¤Г® 29
 		//TimerVal = NewCur;
 		//WRITE_PORT_UCHAR(0x70,0x0A);
 		//WRITE_PORT_UCHAR(0x71, TimerVal);
 	}
 	return STATUS_SUCCESS;
 }
-// в самом драйвере объявляем буффер, под новую карту разрешения ввода-вывода
-//typedef char IOPM[0x2000];
-//IOPM *pNewIO = NULL;
-//.....
-//.....
-//
-//// собственно функция взаимодействия с юзерской программой
-//NTSTATUS IoDispatch(IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
-//{
-//	PIO_STACK_LOCATION IrpStack;
-//
-//	IrpStack = IoGetCurrentIrpStackLocation(Irp);
-//	// сразу устанавливаем поля возврата
-//	Irp->IoStatus.Status = STATUS_SUCCESS;
-//	Irp->IoStatus.Information = 0;
-//
-//	// проверяем, что от нас требуют
-//	switch (IrpStack->MajorFunction)
-//	case IRP_MJ_DEVICE_CONTROL: // пришел запрос через DeviceIoControl
-//		switch (IrpStack->Parameters.DeviceIoControl.IoControlCode) // уточняем какой именно
-//	case ENABLE: // т.е. потребовали разрешить доступ к портам
-//		pIOPM = MmAllocateNonCachedMemory(sizeof(IOPM)); // выделяем память под новую карту ввода-вывода
-//		if (pIOPM)
-//		{
-//			RtlZeroMemory(pNewIO, sizeof(IOPM)); // каждый нулевой бит разрешает доступ к своему порту
-//			// и связываем новую карту с процессом, вызвавшим нас
-//			Ke386IoSetAccessProcess(PsGetCurrentProcess(), 1); // устанавливаем указатель IOPM на новую карту
-//			Ke386SetIoAccessMap(1, pNewIO); // копируем pNewIO в карту ввода-вывода TSS
-//		}
-//		else
-//			Irp->IoStatus.Status = STATUS_INSUFFICIENT_RESOURCES;
-//		break;
-//
-//	case DISABLE: // требуется закрыть доступ к портам
-//		if (pIOPM)
-//		{
-//			Ke386IoSetAccessProcess(PsGetCurrentProcess(), 0); // восстанавливаем указатель на прежнюю карту
-//			Ke386SetIoAccessMap(1, pNewIO);
-//			MmFreeNonCachedMemory(pNewIO, sizeof(IOPM)); // и освобождаем память
-//			pNewIO = NULL;
-//		}
-//		break;
-//}
+
 //New Time increment proc handler
 ULONG NTAPI HalSetTimeIncrementHandler(IN ULONG Increment)
 {
@@ -527,7 +485,7 @@ NTSTATUS SetThreadQuantum(DWORD idThread, UCHAR NewQuantum)
 		return st;
 	}
 
-	//Говорим что нас не надо беспокоить и меняем квант в потоке
+	//ГѓГ®ГўГ®Г°ГЁГ¬ Г·ГІГ® Г­Г Г± Г­ГҐ Г­Г Г¤Г® ГЎГҐГ±ГЇГ®ГЄГ®ГЁГІГј ГЁ Г¬ГҐГ­ГїГҐГ¬ ГЄГўГ Г­ГІ Гў ГЇГ®ГІГ®ГЄГҐ
 	KeEnterCriticalRegion();
 	*(PUCHAR)((DWORD)Thread + OffsQuantObThread) = NewQuantum;
 	KeLeaveCriticalRegion();
@@ -557,7 +515,7 @@ NTSTATUS GetThreadQuantum(DWORD idThread, PUCHAR CurQuantum)
 		return st;
 	}
 
-	//Говорим что нас не надо беспокоить и меняем квант в потоке
+	//ГѓГ®ГўГ®Г°ГЁГ¬ Г·ГІГ® Г­Г Г± Г­ГҐ Г­Г Г¤Г® ГЎГҐГ±ГЇГ®ГЄГ®ГЁГІГј ГЁ Г¬ГҐГ­ГїГҐГ¬ ГЄГўГ Г­ГІ Гў ГЇГ®ГІГ®ГЄГҐ
 	KeEnterCriticalRegion();
 	*CurQuantum = *(PUCHAR)((ULONG)Thread + OffsQuantObThread);
 	KeLeaveCriticalRegion();
@@ -589,7 +547,7 @@ NTSTATUS SetProcessQuantum(DWORD idProcess, UCHAR NewQuantum)
 		return st;
 	}
 
-	//Говорим что нас не надо беспокоить и меняем квант в процессе
+	//ГѓГ®ГўГ®Г°ГЁГ¬ Г·ГІГ® Г­Г Г± Г­ГҐ Г­Г Г¤Г® ГЎГҐГ±ГЇГ®ГЄГ®ГЁГІГј ГЁ Г¬ГҐГ­ГїГҐГ¬ ГЄГўГ Г­ГІ Гў ГЇГ°Г®Г¶ГҐГ±Г±ГҐ
 	KeEnterCriticalRegion();
 	*(PUCHAR)((DWORD)Process + OffsQuantObProcess) = NewQuantum;//Process->Pcb.QuantumReset = ;
 	KeLeaveCriticalRegion();
@@ -622,7 +580,7 @@ NTSTATUS GetProcessQuantum(DWORD idProcess, PUCHAR CurQuantum)
 		return st;
 	}
 
-	//Говорим что нас не надо беспокоить и меняем квант в процессе
+	//ГѓГ®ГўГ®Г°ГЁГ¬ Г·ГІГ® Г­Г Г± Г­ГҐ Г­Г Г¤Г® ГЎГҐГ±ГЇГ®ГЄГ®ГЁГІГј ГЁ Г¬ГҐГ­ГїГҐГ¬ ГЄГўГ Г­ГІ Гў ГЇГ°Г®Г¶ГҐГ±Г±ГҐ
 	KeEnterCriticalRegion();
 
 	*CurQuantum = *(PUCHAR)((DWORD)Process + OffsQuantObProcess);//Tested in my system
