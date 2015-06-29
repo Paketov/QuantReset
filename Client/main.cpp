@@ -15,7 +15,7 @@ HINSTANCE hExe;
 HWND MainWindow;
 extern const PTCHAR NameDriver = TEXT("\\\\.\\QuantumDriver");
 extern const PTCHAR NameDrvInReg = TEXT("SetQuant");
-TCHAR DriverPath[500] = {0};
+WCHAR DriverPath[500] = {0};
 HWND EditQunatTable[3] = {0};
 HWND EditStartQunatTable[3] = {0};
 HWND ProcessList = NULL;
@@ -49,7 +49,7 @@ LV_COLUMN ColumnThreadList[] =
 #define COUNT_PROCESS_COLUMN (sizeof(ColumnProcessList)/sizeof(ColumnProcessList[0]))
 #define COUNT_THREAD_COLUMN (sizeof(ColumnThreadList)/sizeof(ColumnThreadList[0]))
 INT_PTR WINAPI MainDlgProc(HWND hWnd,UINT Msg,WPARAM wParam,LPARAM lParam);
-bool LoadFileFromResource(HMODULE hModule,PTCHAR lpName, PTCHAR lpType, PTCHAR lpOutFileName);
+bool LoadFileFromResource(HMODULE hModule,PTCHAR lpName, LPWSTR lpType, LPWSTR lpOutFileName);
 int WINAPI EditProcessQuantProc(HWND hWnd,UINT Msg,WPARAM wParam,LPARAM lParam);
 int WINAPI EditThreadQuantProc(HWND hWnd,UINT Msg,WPARAM wParam,LPARAM lParam);
 void OutputCurTimerResol();
@@ -58,11 +58,8 @@ void SendQuantFromTextBox(HWND hTextBox, BYTE IndexText);
 INT_PTR WINAPI WinMain(HINSTANCE hExe,HINSTANCE, LPSTR lpCmdShow, int nShowCmd)
 {
 	hExe = hExe;
-
 	setlocale(LC_CTYPE,"russian");
 	InitCommonControls();
-
-
 	//Creating dialog
 	MainWindow = CreateDialog(hExe,MAKEINTRESOURCE(IDD_DIALOG1),NULL,MainDlgProc);
 	ShowWindow(MainWindow,nShowCmd);
@@ -112,12 +109,8 @@ INT_PTR WINAPI MainDlgProc(HWND hWnd,UINT Msg,WPARAM wParam,LPARAM lParam)
 				fprintf(stderr, "SETQUANT_GUI: Loading driver\n");
 				if(!SetPrivilege())
 					fprintf(stderr, "QUANT_GUI: Dont set privelege !\n");
-				GetSystemDirectory(DriverPath,500);
-#ifdef UNICODE
+				GetSystemDirectoryW(DriverPath,500);
 				wcscat(DriverPath,L"\\drivers\\setquant.sys");
-#else
-				strcat(DriverPath,L"\\drivers\\setquant.sys");
-#endif
 				if(!LoadFileFromResource(hExe,MAKEINTRESOURCE(IDR_BIN1), TEXT("bin"), DriverPath))
 					fprintf(stderr, "QUANT_GUI: Driver not copied in sys path\n");
 
@@ -138,12 +131,12 @@ INT_PTR WINAPI MainDlgProc(HWND hWnd,UINT Msg,WPARAM wParam,LPARAM lParam)
 						goto lblNotLoadDriver;
 					}
 
-					//Åñëè ïîëó÷èëè òàáëèöó êâàíòîâ
+					//Ð•ÑÐ»Ð¸ Ð¿Ð¾Ð»ÑƒÑ‡Ð¸Ð»Ð¸ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñƒ ÐºÐ²Ð°Ð½Ñ‚Ð¾Ð²
 					if(GetPspForegroundQuantumAddress(&AddressTable))
 						fprintf(stderr, "QUANT_GUI: Address quantum table in kernel: %x\n", AddressTable);
 					else
 						fprintf(stderr, "QUANT_GUI: Not get address quantum table!\n");
-					//Ïîëó÷àåì íà÷àëüíóþ òàáëèöó êâàíòîâ
+					//ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ Ð½Ð°Ñ‡Ð°Ð»ÑŒÐ½ÑƒÑŽ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñƒ ÐºÐ²Ð°Ð½Ñ‚Ð¾Ð²
 					if(GetStartQuantumTable(StartQuantTable))
 					{
 						fprintf(
@@ -163,7 +156,7 @@ INT_PTR WINAPI MainDlgProc(HWND hWnd,UINT Msg,WPARAM wParam,LPARAM lParam)
 						sprintf(Buf,"%d",(DWORD)StartQuantTable[2]);
 						SetWindowTextA(EditStartQunatTable[2],Buf);
 					}
-					//Ïîëó÷àåì òåêóùóþ òàáëèöó êâàíòîâ
+					//ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ Ñ‚ÐµÐºÑƒÑ‰ÑƒÑŽ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñƒ ÐºÐ²Ð°Ð½Ñ‚Ð¾Ð²
 					if(GetQuantumTable(QuantTable))
 					{
 						fprintf(
@@ -173,7 +166,7 @@ INT_PTR WINAPI MainDlgProc(HWND hWnd,UINT Msg,WPARAM wParam,LPARAM lParam)
 							(DWORD)QuantTable[1],
 							(DWORD)QuantTable[2]
 						);
-						//Àêòèâèðóåì ðåäàêòèðîâàíèå òàáëèöû
+						//ÐÐºÑ‚Ð¸Ð²Ð¸Ñ€ÑƒÐµÐ¼ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñ‹
 						char Buf[10] = {0};
 						sprintf(Buf,"%d",(DWORD)QuantTable[0]);
 						SetWindowTextA(EditQunatTable[0],Buf);
@@ -222,7 +215,7 @@ lblNotLoadDriver:
 		}
 		break;
 	case WM_CLOSE:
-	//Ïðè çàêðûòèè îêíà
+		//ÐŸÑ€Ð¸ Ð·Ð°ÐºÑ€Ñ‹Ñ‚Ð¸Ð¸ Ð¾ÐºÐ½Ð°
 		{
 			if(isDriverLoad)
 			{ 
@@ -233,18 +226,18 @@ lblNotLoadDriver:
 					MB_ICONEXCLAMATION|MB_OKCANCEL) == 1)
 					UnloadDriver(NameDrvInReg);
 			}
-			//Óäàëÿåì äðàéâåð èç ñèñòåìíîé ïàïêè
+			//Ð£Ð´Ð°Ð»ÑÐµÐ¼ Ð´Ñ€Ð°Ð¹Ð²ÐµÑ€ Ð¸Ð· ÑÐ¸ÑÑ‚ÐµÐ¼Ð½Ð¾Ð¹ Ð¿Ð°Ð¿ÐºÐ¸
 			//DeleteFile(DriverPath);
-			//Óäàëÿåì èç ðååñòðà
+			//Ð£Ð´Ð°Ð»ÑÐµÐ¼ Ð¸Ð· Ñ€ÐµÐµÑÑ‚Ñ€Ð°
 			DeleteDriverFromReg(NameDrvInReg);
 			PostQuitMessage(0);
 		}
 		break;
 	case WM_KEYDOWN:
 		if(wParam == 13)
-			switch(GetDlgCtrlID(hWnd))
+		switch(GetDlgCtrlID(hWnd))
 		{
-			//Åñëè íåîáõîäèìî óñòàíîâèòü íîâûé êâàíò
+			//Ð•ÑÐ»Ð¸ Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ð¾ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ Ð½Ð¾Ð²Ñ‹Ð¹ ÐºÐ²Ð°Ð½Ñ‚
 			case IDC_EDIT1:
 				SendQuantFromTextBox(hWnd, 0);
 				break;
@@ -283,7 +276,6 @@ lblNotLoadDriver:
 
 		break;
 	case WM_COMMAND:
-		//Êëèêè ïî êíîïêàì
 		switch(wParam)
 		{
 		case IDC_BUTTON3:
@@ -323,10 +315,10 @@ lblNotLoadDriver:
 		break;
 	case WM_NOTIFY:
 		{
-			//Åñëè ïðèøëî ñîîáùåíèå ñ íàøåãî List View
+			//Ð•ÑÐ»Ð¸ Ð¿Ñ€Ð¸ÑˆÐ»Ð¾ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ðµ Ñ List View
 			if(((int)wParam == IDC_PROCESS) && (((LPNMHDR)lParam)->code == NM_DBLCLK))
 			{
-				//Ïðè äâîéíîì êëèêå ïî ýëåìåíòó íà÷èíàåì ðåäàêòèðîâàòü åãî
+				//ÐŸÑ€Ð¸ Ð´Ð²Ð¾Ð¹Ð½Ð¾Ð¼ ÐºÐ»Ð¸ÐºÐµ Ð¿Ð¾ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ñƒ Ð½Ð°Ñ‡Ð¸Ð½Ð°ÐµÐ¼ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ ÐµÐ³Ð¾
 				LPNMITEMACTIVATE j = (LPNMITEMACTIVATE)lParam;
 				if(j->iItem < 0)
 					break;
@@ -344,7 +336,7 @@ lblNotLoadDriver:
 			}else if(((int)wParam == IDC_THREAD) && (((LPNMHDR)lParam)->code == NM_DBLCLK))
 			{
 
-				//Ïðè äâîéíîì êëèêå ïî ýëåìåíòó íà÷èíàåì ðåäàêòèðîâàòü åãî
+				//ÐŸÑ€Ð¸ Ð´Ð²Ð¾Ð¹Ð½Ð¾Ð¼ ÐºÐ»Ð¸ÐºÐµ Ð¿Ð¾ ÑÐ»ÐµÐ¼ÐµÐ½Ñ‚Ñƒ Ð½Ð°Ñ‡Ð¸Ð½Ð°ÐµÐ¼ Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ ÐµÐ³Ð¾
 				LPNMITEMACTIVATE j = (LPNMITEMACTIVATE)lParam;
 				if(j->iItem < 0)
 					break;
@@ -393,7 +385,7 @@ lblOut:
 	return CallWindowProc((WNDPROC)ListView_GetRedactItemData(hWnd),hWnd,Msg,wParam,lParam);
 }
 
-//Îáðàáîò÷èê íàæàòèÿ ENTER, êîãäà ðåäàêòèðóåòñÿ êâàíò ïîòîêà
+//ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚Ñ‡Ð¸Ðº Ð½Ð°Ð¶Ð°Ñ‚Ð¸Ñ ENTER, ÐºÐ¾Ð³Ð´Ð° Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€ÑƒÐµÑ‚ÑÑ ÐºÐ²Ð°Ð½Ñ‚ Ð¿Ð¾Ñ‚Ð¾ÐºÐ°
 int WINAPI EditThreadQuantProc(HWND hWnd,UINT Msg,WPARAM wParam,LPARAM lParam)
 {
 	if((Msg == WM_KEYDOWN) && (wParam == 13))
@@ -417,7 +409,7 @@ lblOut:
 	return CallWindowProc((WNDPROC)ListView_GetRedactItemData(hWnd),hWnd,Msg,wParam,lParam);
 }
 
-//Îòïðàâëåíèå äðàéâåðó íîâîãî çíà÷åíèÿ êâàíòîâ
+//ÐžÑ‚Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð´Ñ€Ð°Ð¹Ð²ÐµÑ€Ñƒ Ð½Ð¾Ð²Ð¾Ð³Ð¾ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ñ ÐºÐ²Ð°Ð½Ñ‚Ð¾Ð²
 void SendQuantFromTextBox(HWND hTextBox, BYTE IndexText)
 {
 	BOOL Test;
@@ -445,9 +437,9 @@ void SendQuantFromTextBox(HWND hTextBox, BYTE IndexText)
 	}
 }
 
-bool LoadFileFromResource(HMODULE hModule,PTCHAR lpName, PTCHAR lpType, PTCHAR lpOutFileName)
+bool LoadFileFromResource(HMODULE hModule,PTCHAR lpName, LPWSTR lpType, LPWSTR lpOutFileName)
 {
-	HRSRC FindedRes = FindResource(hModule,lpName,lpType);
+	HRSRC FindedRes = FindResourceW(hModule,lpName,lpType);
 	if(FindedRes == NULL)
 		return false;
 	HGLOBAL hLodResource = LoadResource(hModule, FindedRes);
@@ -456,7 +448,7 @@ bool LoadFileFromResource(HMODULE hModule,PTCHAR lpName, PTCHAR lpType, PTCHAR l
 	LPVOID lpDataRes = LockResource(hLodResource);
 	DWORD Size = SizeofResource(hModule, FindedRes);
 	DWORD Written = 0;
-	HANDLE OutFile = CreateFile(
+	HANDLE OutFile = CreateFileW(
 		lpOutFileName,
 		FILE_ALL_ACCESS,
 		FILE_SHARE_READ,
