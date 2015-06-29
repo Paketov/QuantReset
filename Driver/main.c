@@ -69,9 +69,9 @@ NTSTATUS DispatchWrite( IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 NTSTATUS DispatchRead( IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 {
 
-	ULONG SizeWritten;
-	NTSTATUS           ns = STATUS_SUCCESS;
-	PIO_STACK_LOCATION piosl;
+	ULONG 			SizeWritten;
+	NTSTATUS           	ns = STATUS_SUCCESS;
+	PIO_STACK_LOCATION 	piosl;
 
 	piosl = IoGetCurrentIrpStackLocation(Irp);
 
