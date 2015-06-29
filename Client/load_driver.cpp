@@ -1,13 +1,15 @@
 #include <windows.h>
 #include "load_driver.h"
+
+//From kernel sources ))
 typedef struct _UNICODE_STRING {
 	USHORT Length;
 	USHORT MaximumLength;
 #ifdef MIDL_PASS
 	[size_is(MaximumLength / 2), length_is((Length) / 2) ] USHORT * Buffer;
-#else // MIDL_PASS
-	/*_Field_size_bytes_part_(MaximumLength, Length)*/ PWCH   Buffer;
-#endif // MIDL_PASS
+#else 
+	PWCH   Buffer;
+#endif
 } UNICODE_STRING;
 
 enum
@@ -90,16 +92,16 @@ bool LoadDriver(IN PTCHAR DriverPatch,IN PTCHAR DriverName)
 
 bool DeleteDriverFromReg(IN PTCHAR DriverName)
 {
-		HKEY Key;
-		if(RegOpenKey(HKEY_LOCAL_MACHINE, TEXT("system\\CurrentControlSet\\Services"), &Key) != ERROR_SUCCESS)
-			return false;
-		if(RegDeleteKey(Key,DriverName) != ERROR_SUCCESS)
-		{
-			RegCloseKey(Key);
-			return false;
-		}
+	HKEY Key;
+	if(RegOpenKey(HKEY_LOCAL_MACHINE, TEXT("system\\CurrentControlSet\\Services"), &Key) != ERROR_SUCCESS)
+		return false;
+	if(RegDeleteKey(Key,DriverName) != ERROR_SUCCESS)
+	{
 		RegCloseKey(Key);
-	    return true;
+		return false;
+	}
+	RegCloseKey(Key);
+	return true;
 }
 
 
