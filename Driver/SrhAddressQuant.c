@@ -6,8 +6,8 @@
 *	MOV AL, BYTE PTR DS:[EDX + 0x492740]
 *	8A82	40274900
 *	where 0x8A prefix which defined: mov <byte register>, byte ptr cs:[<dword register> + <Address>],
-*   and 82 defined number <byte register> and number <dword register>.
-*		Searched address located after opcode (in example 40274900). 
+*   	and 82 defined number <byte register> and number <dword register>.
+*	Searched address located after opcode (in example 40274900). 
 */
 
 #define MAX_SCANNING_FUNC 101
@@ -37,7 +37,8 @@ const UCHAR MovByteOpcode[] =
 };
 
 /*RETN 8*/
-const UCHAR CommandRetn8[] = {
+const UCHAR CommandRetn8[] = 
+{
 	0xC2,		/*opcode*/
 	0x08, 0x00  /*word 8*/
 };
@@ -69,20 +70,20 @@ PVOID SearchAdressVariableInProc(CONST IN PVOID AdressProc,CONST IN PVOID MaxAdd
 
 PVOID GetAddressPspForegroundQuantum()
 {
-		ULONG CurPrioritySeparation;
-		ULONG CurQuantumTable;
-		PVOID Result = NULL;
+	ULONG CurPrioritySeparation;
+	ULONG CurQuantumTable;
+	PVOID Result = NULL;
 
-		//Getting cur priority Separation from registry
-		CurPrioritySeparation = QueryPrioritySeparation();
-		if(CurPrioritySeparation == (ULONG)-1)
-			return NULL;
+	//Getting cur priority Separation from registry
+	CurPrioritySeparation = QueryPrioritySeparation();
+	if(CurPrioritySeparation == (ULONG)-1)
+		return NULL;
 
-		CurQuantumTable = ComputeQuantumTable(CurPrioritySeparation);
-		Result = SearchAddressPspForegroundQuantum(CurQuantumTable);
-		if(Result == NULL)
-			DbgPrint("QUANTUM: Quntum table not be founded !");
-		return Result;
+	CurQuantumTable = ComputeQuantumTable(CurPrioritySeparation);
+	Result = SearchAddressPspForegroundQuantum(CurQuantumTable);
+	if(Result == NULL)
+		DbgPrint("QUANTUM: Quntum table not be founded !");
+	return Result;
 }
 
 
@@ -171,23 +172,26 @@ PVOID SearchAddressPspForegroundQuantum(IN ULONG TestValue)
 
 ULONG QueryPrioritySeparation()
 {
-	HANDLE					hKey;
-    OBJECT_ATTRIBUTES		ObjAttributes;
-	UNICODE_STRING			KeyPath, KeyValueName;
-    NTSTATUS				Status;
+	HANDLE			hKey;
+    	OBJECT_ATTRIBUTES	ObjAttributes;
+	UNICODE_STRING		KeyPath, KeyValueName;
+    	NTSTATUS		Status;
 	PKEY_VALUE_PARTIAL_INFORMATION KeyValueInformation;
-	UCHAR					Buff[20];
-	ULONG					ResultLength;
+	UCHAR			Buff[20];
+	ULONG			ResultLength;
 
 
 	RtlInitUnicodeString(&KeyPath, L"\\Registry\\Machine\\System\\CurrentControlSet\\Control\\PriorityControl");
 	RtlInitUnicodeString(&KeyValueName, L"Win32PrioritySeparation");
 	
-	InitializeObjectAttributes(&ObjAttributes,
+	InitializeObjectAttributes
+	(
+		&ObjAttributes,
 		&KeyPath,
 		OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,                 
 		NULL,
-		NULL);
+		NULL
+	);
 
 	Status = ZwOpenKey(&hKey,GENERIC_READ,&ObjAttributes);
 
@@ -199,14 +203,15 @@ ULONG QueryPrioritySeparation()
 
 	KeyValueInformation = (PKEY_VALUE_PARTIAL_INFORMATION)Buff;
 	Status = ZwQueryValueKey
-		(
+	(
 		hKey,
 		&KeyValueName,
 		KeyValuePartialInformation,
 		KeyValueInformation,
 		sizeof(Buff),
 		&ResultLength
-		);
+	);
+	
 	ZwClose(hKey);
 
 	if(!NT_SUCCESS(Status) || (KeyValueInformation->Type != REG_DWORD))
@@ -221,110 +226,113 @@ ULONG QueryPrioritySeparation()
 
 ULONG ComputeQuantumTable (ULONG PrioritySeparation)
 {
-
 	//RtlCheckRegistryKey
 	//RtlWriteRegistryValue
 	//RtlCreateRegistryKey
-
 	enum
 	{ 
 		THREAD_QUANTUM =6
 	};
-	static const  SCHAR PspFixedQuantums[6] = {
+	static const  SCHAR PspFixedQuantums[6] = 
+	{
 		3*THREAD_QUANTUM,
 		3*THREAD_QUANTUM,
 		3*THREAD_QUANTUM,
 		6*THREAD_QUANTUM,
 		6*THREAD_QUANTUM,
-		6*THREAD_QUANTUM};
+		6*THREAD_QUANTUM
+	};
 
-	static const  SCHAR PspVariableQuantums[6] = {
+	static const  SCHAR PspVariableQuantums[6] = 
+	{
 		1*THREAD_QUANTUM,
 		2*THREAD_QUANTUM,
 		3*THREAD_QUANTUM,
 		2*THREAD_QUANTUM,
 		4*THREAD_QUANTUM,
-		6*THREAD_QUANTUM};
-		ULONG RetForegroundQuantum = 0;
-		SCHAR const* QuantumTableBase;
+		6*THREAD_QUANTUM
+	};
+	ULONG RetForegroundQuantum = 0;
+	SCHAR const* QuantumTableBase;
 
-		//
-		// determine if we are using fixed or variable quantums
-		//
+	//
+	// determine if we are using fixed or variable quantums
+	//
 
-		switch (PrioritySeparation & PROCESS_QUANTUM_VARIABLE_MASK) 
-		{
-		case PROCESS_QUANTUM_VARIABLE_VALUE:
-			QuantumTableBase = PspVariableQuantums;
-			break;
-		case PROCESS_QUANTUM_FIXED_VALUE:
+	switch (PrioritySeparation & PROCESS_QUANTUM_VARIABLE_MASK) 
+	{
+	case PROCESS_QUANTUM_VARIABLE_VALUE:
+		QuantumTableBase = PspVariableQuantums;
+		break;
+	case PROCESS_QUANTUM_FIXED_VALUE:
+		QuantumTableBase = PspFixedQuantums;
+		break;
+	case PROCESS_QUANTUM_VARIABLE_DEF:
+	default:
+		if (MmIsThisAnNtAsSystem ()) 
 			QuantumTableBase = PspFixedQuantums;
-			break;
-		case PROCESS_QUANTUM_VARIABLE_DEF:
-		default:
-			if (MmIsThisAnNtAsSystem ()) 
-				QuantumTableBase = PspFixedQuantums;
-			else 
-				QuantumTableBase = PspVariableQuantums;
-			break;
-		}
+		else 
+			QuantumTableBase = PspVariableQuantums;
+		break;
+	}
 
-		//
-		// determine if we are using long or short
-		//
-		switch (PrioritySeparation & PROCESS_QUANTUM_LONG_MASK) 
-		{
-		case PROCESS_QUANTUM_LONG_VALUE:
+	//
+	// determine if we are using long or short
+	//
+
+	switch (PrioritySeparation & PROCESS_QUANTUM_LONG_MASK) 
+	{
+	case PROCESS_QUANTUM_LONG_VALUE:
+		QuantumTableBase = QuantumTableBase + 3;
+		break;
+	case PROCESS_QUANTUM_SHORT_VALUE:
+		break;
+	case PROCESS_QUANTUM_LONG_DEF:
+	default:
+		if (MmIsThisAnNtAsSystem ()) 
 			QuantumTableBase = QuantumTableBase + 3;
-			break;
-		case PROCESS_QUANTUM_SHORT_VALUE:
-			break;
-		case PROCESS_QUANTUM_LONG_DEF:
-		default:
-			if (MmIsThisAnNtAsSystem ()) 
-				QuantumTableBase = QuantumTableBase + 3;
-			break;
-		}
+		break;
+	}
 
-		RtlCopyMemory (&RetForegroundQuantum, QuantumTableBase, sizeof(SCHAR) * 3);
-		return RetForegroundQuantum;
+	RtlCopyMemory (&RetForegroundQuantum, QuantumTableBase, sizeof(SCHAR) * 3);
+	return RetForegroundQuantum;
 }
 
 
 PVOID SearchTimeTable()
 {
-		UNICODE_STRING NameHalSetTimeIncrement;
-		PVOID HalSetTimeIncrementEntry;
-		PVOID HalBase;
-		PIMAGE_SECTION_HEADER pSectionHeader;
-		PVOID BaseDataSegment;
-		PVOID Barier;
-		register ULONG j;
-		//Timer period table
+	UNICODE_STRING NameHalSetTimeIncrement;
+	PVOID HalSetTimeIncrementEntry;
+	PVOID HalBase;
+	PIMAGE_SECTION_HEADER pSectionHeader;
+	PVOID BaseDataSegment;
+	PVOID Barier;
+	register ULONG j;
+	//Timer period table
 
-   		RtlInitUnicodeString(&NameHalSetTimeIncrement, L"HalSetTimeIncrement"); 
-		
-		HalSetTimeIncrementEntry = MmGetSystemRoutineAddress(&NameHalSetTimeIncrement);
-		if(HalSetTimeIncrementEntry == NULL)
-			return NULL;
-        
-		HalBase = MmPageEntireDriver(HalSetTimeIncrementEntry);
-		if(HalBase == NULL)
-			return NULL;
-
-		pSectionHeader = GetSectionByName(HalBase,".data");
-		if(pSectionHeader == NULL)
-			return NULL;
-
-		BaseDataSegment = (PVOID)(pSectionHeader->VirtualAddress + (DWORD)HalBase);
-		Barier = (PVOID)((DWORD)BaseDataSegment + pSectionHeader->SizeOfRawData - sizeof(TimeIncrementTable));
-		for(;BaseDataSegment <= Barier;BaseDataSegment = (PUCHAR)BaseDataSegment + 1)
-		{
-		   for(j = 0;j < (sizeof(TimeIncrementTable)/sizeof(DWORD));j++)
-		      if(((LPDWORD)BaseDataSegment)[j] != ((LPDWORD)TimeIncrementTable)[j])
-					break;
-		   if(j == (sizeof(TimeIncrementTable)/sizeof(DWORD)))
-			   return BaseDataSegment;
-		}
+   	RtlInitUnicodeString(&NameHalSetTimeIncrement, L"HalSetTimeIncrement"); 
+   	
+	HalSetTimeIncrementEntry = MmGetSystemRoutineAddress(&NameHalSetTimeIncrement);
+	if(HalSetTimeIncrementEntry == NULL)
 		return NULL;
+        
+	HalBase = MmPageEntireDriver(HalSetTimeIncrementEntry);
+	if(HalBase == NULL)
+		return NULL;
+
+	pSectionHeader = GetSectionByName(HalBase,".data");
+	if(pSectionHeader == NULL)
+		return NULL;
+
+	BaseDataSegment = (PVOID)(pSectionHeader->VirtualAddress + (DWORD)HalBase);
+	Barier = (PVOID)((DWORD)BaseDataSegment + pSectionHeader->SizeOfRawData - sizeof(TimeIncrementTable));
+	for(;BaseDataSegment <= Barier;BaseDataSegment = (PUCHAR)BaseDataSegment + 1)
+	{
+	   for(j = 0;j < (sizeof(TimeIncrementTable)/sizeof(DWORD));j++)
+	      if(((LPDWORD)BaseDataSegment)[j] != ((LPDWORD)TimeIncrementTable)[j])
+			break;
+	   if(j == (sizeof(TimeIncrementTable)/sizeof(DWORD)))
+		   return BaseDataSegment;
+	}
+	return NULL;
 }
