@@ -18,11 +18,11 @@ VOID SetInterceptProc(IN PVOID AddressProc,IN PVOID AddressHandler,OUT JMP_COMMA
 	ULONG    CR0Reg;
 	__asm
 	{
-			cli
-			mov eax, cr0
-			mov CR0Reg,eax
-			and eax,0xFFFEFFFF		//Clear WP bit
-			mov cr0, eax
+		cli
+		mov eax, cr0
+		mov CR0Reg,eax
+		and eax,0xFFFEFFFF		//Clear WP bit
+		mov cr0, eax
 	}
 	//Copy original code
 	*OriginalCommand = *(JMP_COMMAND*)AddressProc;
@@ -31,9 +31,9 @@ VOID SetInterceptProc(IN PVOID AddressProc,IN PVOID AddressHandler,OUT JMP_COMMA
 	((JMP_COMMAND*)AddressProc)->RelAddressHandler = (PVOID)((ULONG)AddressHandler - (ULONG)AddressProc - sizeof(JMP_COMMAND));
 	__asm
 	{
-			mov eax, CR0Reg    
-			mov cr0, eax
-			sti                     
+		mov eax, CR0Reg    
+		mov cr0, eax
+		sti                     
 	}
 }
 
@@ -43,19 +43,19 @@ VOID SetInterceptProc(IN PVOID AddressProc,IN PVOID AddressHandler,OUT JMP_COMMA
 	ULONG    CR0Reg;
 	__asm
 	{
-			cli
-			mov eax, cr0
-			mov CR0Reg,eax
-			and eax,0xFFFEFFFF		
-			mov cr0, eax
+		cli
+		mov eax, cr0
+		mov CR0Reg,eax
+		and eax,0xFFFEFFFF		
+		mov cr0, eax
 	}
 	//Copy original code
 	*(JMP_COMMAND*)AddressProc = *OriginalCommand;
 	__asm
 	{
-			mov eax, CR0Reg    
-			mov cr0, eax
-			sti                     
+		mov eax, CR0Reg    
+		mov cr0, eax
+		sti                     
 	}
 }
 
