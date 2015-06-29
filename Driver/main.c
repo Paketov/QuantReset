@@ -27,8 +27,8 @@ VOID DriverUnload(IN PDRIVER_OBJECT DriverObject)
 	if(isChangedTimerResolution)
 		ExSetTimerResolution(0,FALSE);
 
-	IoDeleteSymbolicLink(&SymbolicLinkName); // удаляем символическую ссылку
-	IoDeleteDevice(deviceObject);                // удаляем устройство return;
+	IoDeleteSymbolicLink(&SymbolicLinkName); // ГіГ¤Г Г«ГїГҐГ¬ Г±ГЁГ¬ГўГ®Г«ГЁГ·ГҐГ±ГЄГіГѕ Г±Г±Г»Г«ГЄГі
+	IoDeleteDevice(deviceObject);            // ГіГ¤Г Г«ГїГҐГ¬ ГіГ±ГІГ°Г®Г©Г±ГІГўГ® return;
 }
 
 NTSTATUS DispatchCreateClose( IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
@@ -50,7 +50,7 @@ NTSTATUS DispatchWrite( IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 	piosl = IoGetCurrentIrpStackLocation(Irp);
 	__try
 	{
-		//Проверяем входной буфер на косяки
+		//ГЏГ°Г®ГўГҐГ°ГїГҐГ¬ ГўГµГ®Г¤Г­Г®Г© ГЎГіГґГҐГ° Г­Г  ГЄГ®Г±ГїГЄГЁ
 		ProbeForRead(Irp->UserBuffer,piosl->Parameters.Write.Length,sizeof(UCHAR));
 	}__except(EXCEPTION_EXECUTE_HANDLER)            
 	{
@@ -77,7 +77,7 @@ NTSTATUS DispatchRead( IN PDEVICE_OBJECT DeviceObject, IN PIRP Irp)
 
 	__try
 	{
-		//Проверяем входной буфер на косяки
+		//ГЏГ°Г®ГўГҐГ°ГїГҐГ¬ ГўГµГ®Г¤Г­Г®Г© ГЎГіГґГҐГ° Г­Г  ГЄГ®Г±ГїГЄГЁ
 		ProbeForRead(Irp->UserBuffer,piosl->Parameters.Read.Length,sizeof(UCHAR));
 	}__except(EXCEPTION_EXECUTE_HANDLER)            
 	{
@@ -104,18 +104,18 @@ NTSTATUS NTAPI DriverEntry(IN PDRIVER_OBJECT DriverObject, IN PUNICODE_STRING Re
 	RtlInitUnicodeString(&DeviceName, dDeviceName);
 	RtlInitUnicodeString(&SymbolicLinkName, dSymbolicLinkName); 
 	st = IoCreateDevice
-		(
-		DriverObject,       // указатель на DriverObject
-		0,                  // размер памяти (device extension)
-		&DeviceName,        // имя создаваемого устройства
-		FILE_DEVICE_NULL,   // тип создаваемого устройства
-		0,                  // характеристики устройства
-		FALSE,              // "эксклюзивное" устройство
-		&deviceObject       // указатель на объект устройства
-		);
+	(
+		DriverObject,       // ГіГЄГ Г§Г ГІГҐГ«Гј Г­Г  DriverObject
+		0,                  // Г°Г Г§Г¬ГҐГ° ГЇГ Г¬ГїГІГЁ (device extension)
+		&DeviceName,        // ГЁГ¬Гї Г±Г®Г§Г¤Г ГўГ ГҐГ¬Г®ГЈГ® ГіГ±ГІГ°Г®Г©Г±ГІГўГ 
+		FILE_DEVICE_NULL,   // ГІГЁГЇ Г±Г®Г§Г¤Г ГўГ ГҐГ¬Г®ГЈГ® ГіГ±ГІГ°Г®Г©Г±ГІГўГ 
+		0,                  // ГµГ Г°Г ГЄГІГҐГ°ГЁГ±ГІГЁГЄГЁ ГіГ±ГІГ°Г®Г©Г±ГІГўГ 
+		FALSE,              // "ГЅГЄГ±ГЄГ«ГѕГ§ГЁГўГ­Г®ГҐ" ГіГ±ГІГ°Г®Г©Г±ГІГўГ®
+		&deviceObject       // ГіГЄГ Г§Г ГІГҐГ«Гј Г­Г  Г®ГЎГєГҐГЄГІ ГіГ±ГІГ°Г®Г©Г±ГІГўГ 
+	);
 
 	if((st == STATUS_SUCCESS))
-		st = IoCreateSymbolicLink(&SymbolicLinkName,&DeviceName);      // имя устройства
+		st = IoCreateSymbolicLink(&SymbolicLinkName,&DeviceName);      // ГЁГ¬Гї ГіГ±ГІГ°Г®Г©Г±ГІГўГ 
 	else
 		DbgPrint("QUANTUM: Not create device !");
 
